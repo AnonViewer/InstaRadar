@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>InstaRadar 📡</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #0a0e17;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #e0e6f0;
+            padding: 20px;
+            transition: background 0.3s;
+        }
+        body.light {
+            background: #f0f4fa;
+            color: #1a1a2e;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(18, 26, 40, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 200, 50, 0.25);
+            border-radius: 32px;
+            padding: 40px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(255, 200, 50, 0.05);
+            transition: background 0.3s, border 0.3s;
+        }
+        body.light .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: #d0d8e0;
+        }
+        .badge {
+            display: inline-block;
+            background: rgba(255, 200, 50, 0.15);
+            color: #ffcc33;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 200, 50, 0.25);
+            margin-bottom: 16px;
+        }
+        h1 {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+        h1 span {
+            color: #ffcc33;
+        }
+        .subtitle {
+            font-size: 17px;
+            color: #8892b0;
+            margin-bottom: 24px;
+            border-left: 3px solid #ffcc33;
+            padding-left: 16px;
+        }
+        body.light .subtitle {
+            color: #4a5568;
+        }
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 12px 20px;
+            border-radius: 40px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        body.light .status-bar {
+            background: #e8ecf2;
+            border-color: #d0d8e0;
+        }
+        .status-indicator {
+            font-size: 14px;
+            color: #ffcc33;
+        }
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .toggle-group label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #2a3a4a;
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+        .slider::before {
+            content: '';
+            position: absolute;
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background: #fff;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        .switch input:checked+.slider {
+            background: #ffcc33;
+        }
+        .switch input:checked+.slider::before {
+            transform: translateX(20px);
+        }
+        #toggleStatus {
+            font-weight: 700;
+            font-size: 14px;
+            min-width: 54px;
+        }
+        .steps {
+            background: #0d1117;
+            padding: 18px 22px;
+            border-radius: 16px;
+            border: 1px solid #1e2a3a;
+            margin-bottom: 20px;
+        }
+        body.light .steps {
+            background: #f7f9fc;
+            border-color: #dde3ed;
+        }
+        .steps ol {
+            padding-left: 22px;
+            margin-top: 6px;
+        }
+        .steps li {
+            margin-bottom: 8px;
+            color: #c9d1d9;
+        }
+        body.light .steps li {
+            color: #2d3748;
+        }
+        .steps li strong {
+            color: #ffcc33;
+        }
+        .code-box {
+            background: #0d1117;
+            border-radius: 16px;
+            padding: 18px 20px;
+            border: 1px solid #1e2a3a;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        body.light .code-box {
+            background: #f7f9fc;
+            border-color: #dde3ed;
+        }
+        .code-box .label {
+            color: #8b949e;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .code-box pre {
+            font-family: 'Fira Code', 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #c9d1d9;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        body.light .code-box pre {
+            color: #1a1a2e;
+        }
+        .btn-copy {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: #1e2a3a;
+            border: none;
+            color: #c9d1d9;
+            padding: 4px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        body.light .btn-copy {
+            background: #dde3ed;
+            color: #1a1a2e;
+        }
+        .btn-copy:hover {
+            background: #2e3a4a;
+            color: #fff;
+        }
+        .btn-inject {
+            background: #ffcc33;
+            border: none;
+            color: #0a0e17;
+            font-weight: 700;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 8px;
+            width: 100%;
+        }
+        .btn-inject:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px #ffcc3340;
+        }
+        body.light .btn-inject {
+            color: #0a0e17;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 14px 0;
+            margin: 16px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        body.light .stats {
+            border-color: #dde3ed;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            display: block;
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffcc33;
+        }
+        body.light .stat-number {
+            color: #b8860b;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: #8892b0;
+            text-transform: uppercase;
+        }
+        .disclaimer {
+            padding: 14px 18px;
+            background: rgba(255, 200, 0, 0.06);
+            border: 1px solid rgba(255, 200, 0, 0.15);
+            border-radius: 12px;
+            font-size: 12px;
+            color: #a8b2d1;
+            margin-top: 12px;
+        }
+        body.light .disclaimer {
+            color: #4a5568;
+        }
+        .disclaimer strong {
+            color: #f0e6d0;
+        }
+        body.light .disclaimer strong {
+            color: #744210;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #495670;
+            margin-top: 16px;
+        }
+        .footer a {
+            color: #ffcc33;
+            text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 24px 16px;
+            }
+            h1 {
+                font-size: 28px;
+            }
+            .status-bar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="badge">📡 v1.0.0 • Open Source</div>
+        <h1>Insta<span>Radar</span></h1>
+        <div class="subtitle">📡 Anonymous Instagram Viewer — Block the "Seen" Signal</div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span class="status-indicator" id="statusIndicator">● System ready</span>
+            <div class="toggle-group">
+                <label>Stealth</label>
+                <label class="switch">
+                    <input type="checkbox" id="stealthToggle" checked />
+                    <span class="slider"></span>
+                </label>
+                <span id="toggleStatus" style="color:#ffcc33;">ACTIVE</span>
+            </div>
+            <button id="themeToggle" style="background:transparent;border:1px solid #2a3a4a;border-radius:40px;padding:4px 14px;color:#e0e6f0;cursor:pointer;">🌙</button>
+        </div>
+
+        <div class="steps">
+            <strong style="color:#fff;">📋 How to go invisible:</strong>
+            <ol>
+                <li><strong>Copy</strong> the script below.</li>
+                <li>Open <strong>Instagram</strong> in your browser.</li>
+                <li>Press <strong>F12</strong> → go to the <strong>Console</strong> tab.</li>
+                <li><strong>Paste</strong> the script and press <strong>Enter</strong>.</li>
+                <li>Watch stories — <strong>you won't appear</strong> on the viewer list!</li>
+            </ol>
+        </div>
+
+        <div class="code-box">
+            <span class="label">⚡ Injection Script (Copy & Paste)</span>
+            <button class="btn-copy" id="copyBtn">📄 Copy</button>
+            <pre id="codeSnippet">Loading script...</pre>
+        </div>
+
+        <button class="btn-inject" id="injectBtn">▶ Click to Test Injection (Console Log)</button>
+
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-number" id="viewCount">0</span>
+                <span class="stat-label">Views blocked (session)</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">12.4K</span>
+                <span class="stat-label">Total blocked</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">⭐ 843</span>
+                <span class="stat-label">GitHub Stars</span>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>⚠️ Legal:</strong> Educational use only. Works on <strong>public</strong> profiles only.
+            Does not bypass Instagram privacy. You are responsible for complying with Instagram's ToS.
+        </div>
+        <div class="footer">Made with 🖤 for research • <a href="#" id="githubLink">GitHub</a></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
